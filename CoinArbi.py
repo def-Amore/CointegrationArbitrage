@@ -14,14 +14,15 @@ class CointegrationPair:
     store a pair of data and judge their cointegration
     """
 
-    def __init__(self, coin1: pd.Series, coin2: pd.Series, threshold, trading_fee: float):
+    def __init__(self, coin1: pd.Series, coin2: pd.Series, threshold: float = .05, trading_fee: float = .0001):
         self.coin1 = coin1
         self.coin2 = coin2
         self.threshold = threshold
         self.trading_fee = trading_fee
         self.cointegration = False
 
-    def ADF_test(self, data: pd.Series, alpha=0.05, case: str = ''):
+    @classmethod
+    def ADF_test(cls, data: pd.Series, alpha=0.05, case: str = ''):
         # 航空公司乘客数据adf检验
         result = adfuller(data[1:])
         match case:
@@ -51,20 +52,20 @@ class CointegrationPair:
         return pd.Series(residuals)
 
     def check_cointegration(self):
-        if (
-                not self.ADF_test(self.coin1[1:], case='origin')
-                and not self.ADF_test(self.coin2[1:], case='origin')
-                and self.ADF_test(first_difference(self.coin1[1:]), case='first_difference')
-                and self.ADF_test(first_difference(self.coin2[1:]), case='first_difference')
-        ):
+        # if (
+        #         not self.ADF_test(self.coin1[1:], case='origin')
+        #         and not self.ADF_test(self.coin2[1:], case='origin')
+        #         and self.ADF_test(first_difference(self.coin1[1:]), case='first_difference')
+        #         and self.ADF_test(first_difference(self.coin2[1:]), case='first_difference')
+        # ):
 
-            if self.ADF_test(self.get_residual(), case='residual'):
-                self.cointegration = True
-                print(f'{self.coin1.name} and {self.coin2.name} are cointegrated')
-                return True
-            else:
-                print(f'{self.coin1.name} and {self.coin2.name} are not cointegrated')
-                return False
+        if self.ADF_test(self.get_residual(), case='residual'):
+            self.cointegration = True
+            print(f'{self.coin1.name} and {self.coin2.name} are cointegrated')
+            return True
+        else:
+            print(f'{self.coin1.name} and {self.coin2.name} are not cointegrated')
+            return False
 
 
 def find_cointegration(data: pd.DataFrame):
@@ -74,12 +75,18 @@ def find_cointegration(data: pd.DataFrame):
     :return: list of CointegrationPair
     """
     cointegration_pairs = []
+    stationary_bool = [0]*len(data.columns)
+    # check integration
     for i in range(len(data.columns)):
-        for j in range(i + 1, len(data.columns)):
-            coin1 = data.iloc[:, i]
-            coin2 = data.iloc[:, j]
-            cointegration_arbitrage = CointegrationPair(coin1, coin2, 0.05, 0.001)
-            if cointegration_arbitrage.check_cointegration():
-                cointegration_pairs.append(cointegration_arbitrage)
+        stationary_bool[i] = CointegrationPair.ADF_test(first_difference(data.iloc[:,i]),case='origin')
+    # for every integration, check cointegration
+    for i in range(len(data.columns)-1):
+        for j in range(i+1,len(data.columns)):
+            if stationary_bool[i] == stationary_bool[j] == 1:
+                cointegration_pair = CointegrationPair(data.iloc[:,i], data.iloc[:,j], )
+                if cointegration_pair.check_cointegration():
+                    cointegration_pairs.append(cointegration_pair)
 
     return cointegration_pairs
+
+
