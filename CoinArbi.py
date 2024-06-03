@@ -59,7 +59,7 @@ class CointegrationPair:
         #         and self.ADF_test(first_difference(self.coin2[1:]), case='first_difference')
         # ):
 
-        if self.ADF_test(self.get_residual(), case='residual'):
+        if self.ADF_test(self.get_residual(), case='residual', alpha=0.01):
             self.cointegration = True
             print(f'{self.coin1.name} and {self.coin2.name} are cointegrated')
             return True
@@ -75,18 +75,18 @@ def find_cointegration(data: pd.DataFrame):
     :return: list of CointegrationPair
     """
     cointegration_pairs = []
-    stationary_bool = [0]*len(data.columns)
+    stationary_bool = [0] * len(data.columns)
     # check integration
     for i in range(len(data.columns)):
-        stationary_bool[i] = CointegrationPair.ADF_test(first_difference(data.iloc[:,i]),case='origin')
+        stationary_bool[i] = CointegrationPair.ADF_test(first_difference(data.iloc[:, i]), case='first difference', alpha=0.01)
+    print([ticker for ticker, is_true in zip(data.columns,stationary_bool) if is_true])
     # for every integration, check cointegration
-    for i in range(len(data.columns)-1):
-        for j in range(i+1,len(data.columns)):
+    for i in range(len(data.columns) - 1):
+        for j in range(i + 1, len(data.columns)):
             if stationary_bool[i] == stationary_bool[j] == 1:
-                cointegration_pair = CointegrationPair(data.iloc[:,i], data.iloc[:,j], )
+                cointegration_pair = CointegrationPair(data.iloc[:, i], data.iloc[:, j], )
                 if cointegration_pair.check_cointegration():
                     cointegration_pairs.append(cointegration_pair)
 
     return cointegration_pairs
-
 

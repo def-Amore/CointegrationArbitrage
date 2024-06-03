@@ -1,7 +1,7 @@
-from CoinArbi import find_cointegration
+from CoinArbi import find_cointegration, CointegrationPair
 from DataPrep import get_data
 
-tickers = ['rb1903', 'rb1904', 'rb1905', 'rb1906', 'rb1907', 'rb1908']
+tickers = ['sc2304', 'sc2305', 'sc2306', 'sc2307', 'sc2308', 'sc2309', 'sc2310', ]
 data = get_data(tickers)
 co_ints = find_cointegration(data)
 for co in co_ints:
