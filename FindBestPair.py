@@ -1,5 +1,5 @@
-from CoinArbi import find_cointegration, CointegrationPair
-from DataPrep import get_data, get_data_from_csv
+from PairArbi import find_cointegration
+from DataPrep import get_data_from_csv
 
 # tickers = ['sc2304', 'sc2305', 'sc2306', 'sc2307', 'sc2308', 'sc2309', 'sc2310', ]
 # data = get_data(tickers)

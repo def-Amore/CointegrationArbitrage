@@ -1,6 +1,6 @@
 from typing import List
 
-from CoinArbi import find_cointegration, CointegrationPair
+from PairArbi import find_cointegration, ArbitragePair
 
 import pandas as pd
 import numpy as np

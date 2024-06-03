@@ -14,7 +14,7 @@ def first_difference(data: pd.Series):
     return ret
 
 
-class CointegrationPair:
+class ArbitragePair:
     """
     store a pair of data and judge their cointegration
     """
@@ -100,17 +100,17 @@ def find_cointegration(data: pd.DataFrame, formative_period: tuple, trading_peri
     # check integration
     for i in range(len(data.columns)):
         # stationary_bool[i] = CointegrationPair.ADF_test(data.loc[f_start:f_end].iloc[:, i], case='origin')
-        stationary_bool[i] = CointegrationPair.ADF_test(first_difference(data.loc[f_start:f_end].iloc[:, i]),
-                                                        case='first difference',
-                                                        alpha=0.01)
+        stationary_bool[i] = ArbitragePair.ADF_test(first_difference(data.loc[f_start:f_end].iloc[:, i]),
+                                                    case='first difference',
+                                                    alpha=0.01)
     print([ticker for ticker, is_true in zip(data.columns, stationary_bool) if is_true])
     # for every integration, check cointegration
     for i in range(len(data.columns) - 1):
         for j in range(i + 1, len(data.columns)):
             if stationary_bool[i] == stationary_bool[j] == 1:
-                cointegration_pair = CointegrationPair(data.iloc[:, i],
+                cointegration_pair = ArbitragePair(data.iloc[:, i],
                                                        data.iloc[:, j],
-                                                       formative_period=formative_period, trading_period=trading_period)
+                                                   formative_period=formative_period, trading_period=trading_period)
                 if cointegration_pair.check_cointegration():
                     cointegration_pairs.append(cointegration_pair)
 

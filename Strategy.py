@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from CoinArbi import CointegrationPair
+from PairArbi import ArbitragePair
 
 from enum import Enum, auto
 
@@ -15,7 +15,7 @@ class TradeSignal(Enum):
 
 
 class Strategy:
-    def __init__(self, pair: CointegrationPair, trading_period: tuple, open_threshold: float = 1.1,
+    def __init__(self, pair: ArbitragePair, trading_period: tuple, open_threshold: float = 1.1,
                  close_threshold: float = 0.5, stop_loss_threshold: float = 2.1, ):
         self.pair = pair
         self.trading_period = trading_period
