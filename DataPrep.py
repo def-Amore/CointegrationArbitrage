@@ -17,7 +17,7 @@ def get_data_from_csv(file_path: str, symbols: List[str]):
     merged_data = pd.DataFrame()
     for symbol in symbols:
         tmp_group = groupby_symbol.get_group(symbol)
-        tmp_df = pd.DataFrame([np.array(tmp_group['Trddt']), np.array(tmp_group['Close'])]).T
+        tmp_df = pd.DataFrame([np.array(tmp_group['Trddt']), np.log(np.array(tmp_group['Close']))]).T
         tmp_df.set_index(0, inplace=True)
         tmp_df.index.rename('date', inplace=True)
         tmp_df.columns = [symbol]
@@ -26,12 +26,11 @@ def get_data_from_csv(file_path: str, symbols: List[str]):
             continue
         merged_data = pd.merge(tmp_df, merged_data, left_index=True, right_index=True, how='inner')
     merged_data.index = pd.to_datetime(merged_data.index, format='%Y/%m/%d')
+    merged_data = merged_data.astype(float)
 
-    return data
+    return merged_data
 
 
-get_data_from_csv('data_INE.csv', ['SC2303',
-                                   'SC2306', 'SC2309', 'SC2312', ])
 
 
 # 'SC2403','SC2406','SC2409','SC2412'])
