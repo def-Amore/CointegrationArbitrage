@@ -26,14 +26,17 @@ class CointegrationPair:
         self.threshold = threshold
         self.trading_fee = trading_fee
         self.cointegration = False
-        self.formative_period = formative_period
-        self.trading_period = trading_period
+        self.formative_period = (pd.to_datetime(formative_period[0], format='%Y%m%d'),
+                                 pd.to_datetime(formative_period[1], format='%Y%m%d'))
+        self.trading_period = (pd.to_datetime(trading_period[0], format='%Y%m%d'),
+                              pd.to_datetime(trading_period[1], format='%Y%m%d'))
         self.ADF_statistic = None
+        self.OLS_results = None
 
     @classmethod
     def ADF_test(cls, data: pd.Series, alpha=0.05, case: str = ''):
         # 航空公司乘客数据adf检验
-        result = adfuller(data[1:])
+        result = adfuller(data[:])
         result = cast(list, result)
         match case:
             case 'residual':
@@ -53,9 +56,10 @@ class CointegrationPair:
 
     def get_residual(self):
         # 创建线性回归模型并拟合数据
-        model = sm.OLS(self.coin1[:], sm.add_constant(self.coin2[:]))
+        model = sm.OLS(self.coin1.loc[self.formative_period[0]:self.formative_period[1]],
+                       sm.add_constant(self.coin2.loc[self.formative_period[0]:self.formative_period[1]]))
         results = model.fit()
-
+        self.OLS_results = results
         # 获取残差
         residuals = results.resid
 
@@ -104,8 +108,8 @@ def find_cointegration(data: pd.DataFrame, formative_period: tuple, trading_peri
     for i in range(len(data.columns) - 1):
         for j in range(i + 1, len(data.columns)):
             if stationary_bool[i] == stationary_bool[j] == 1:
-                cointegration_pair = CointegrationPair(data.loc[f_start:f_end].iloc[:, i],
-                                                       data.loc[f_start:f_end].iloc[:, j],
+                cointegration_pair = CointegrationPair(data.iloc[:, i],
+                                                       data.iloc[:, j],
                                                        formative_period=formative_period, trading_period=trading_period)
                 if cointegration_pair.check_cointegration():
                     cointegration_pairs.append(cointegration_pair)
