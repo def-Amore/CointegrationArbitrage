@@ -29,7 +29,7 @@ class ArbitragePair:
         self.formative_period = (pd.to_datetime(formative_period[0], format='%Y%m%d'),
                                  pd.to_datetime(formative_period[1], format='%Y%m%d'))
         self.trading_period = (pd.to_datetime(trading_period[0], format='%Y%m%d'),
-                              pd.to_datetime(trading_period[1], format='%Y%m%d'))
+                               pd.to_datetime(trading_period[1], format='%Y%m%d'))
         self.ADF_statistic = None
         self.OLS_results = None
 
@@ -99,7 +99,7 @@ def find_cointegration(data: pd.DataFrame, formative_period: tuple, trading_peri
     stationary_bool = [0] * len(data.columns)
     # check integration
     for i in range(len(data.columns)):
-        # stationary_bool[i] = CointegrationPair.ADF_test(data.loc[f_start:f_end].iloc[:, i], case='origin')
+        # stationary_bool[i] = ArbitragePair.ADF_test(data.loc[f_start:f_end].iloc[:, i], case='origin')
         stationary_bool[i] = ArbitragePair.ADF_test(first_difference(data.loc[f_start:f_end].iloc[:, i]),
                                                     case='first difference',
                                                     alpha=0.01)

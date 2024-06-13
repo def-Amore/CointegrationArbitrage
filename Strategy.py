@@ -16,7 +16,7 @@ class TradeSignal(Enum):
 
 class Strategy:
     def __init__(self, pair: ArbitragePair, trading_period: tuple, open_threshold: float = 1.1,
-                 close_threshold: float = 0.5, stop_loss_threshold: float = 2.1, ):
+                 close_threshold: float = 0.3, stop_loss_threshold: float = 2.1, ):
         self.pair = pair
         self.trading_period = trading_period
         self.open_threshold = open_threshold
@@ -74,13 +74,58 @@ class Strategy:
     def get_profit(self):
         profit = 0
         open_idx = None
-        for i, trade_signal in zip(self.std_spread.index, self.trade_signals):
+        profit_list = []
+        open = False
+        for i, trade_signal in zip(range(0,len(self.trade_signals)), self.trade_signals):
             if trade_signal == TradeSignal.LONG:
                 open_idx = i
+                open = True
             if trade_signal == TradeSignal.SHORT:
                 open_idx = i
-            if trade_signal == TradeSignal.STOP_LOSS:
-                profit -= np.abs(self.spread[open_idx] - self.spread[i])
+                open = True
+            if trade_signal == TradeSignal.STOP_LOSS and open:
+                profit -= np.abs(self.spread.iloc[open_idx] - self.spread.iloc[i])
+                open = False
             if trade_signal == TradeSignal.CLOSE:
-                profit += np.abs(self.spread[open_idx] - self.spread[i])
+                profit += np.abs(self.spread.iloc[open_idx] - self.spread.iloc[i])
+                open = False
+        # get the daily return
+        LONG , SHORT= False, False
+        for i, trade_signal in zip(range(0,len(self.trade_signals)), self.trade_signals):
+            if trade_signal == TradeSignal.LONG:
+                LONG = True
+                profit_list.append(0)
+            elif trade_signal == TradeSignal.SHORT:
+                SHORT = True
+                profit_list.append(0)
+            elif trade_signal == TradeSignal.HOLD and LONG:
+                profit_list.append(self.spread.iloc[i] - self.spread.iloc[i-1])
+            elif trade_signal == TradeSignal.HOLD and SHORT:
+                profit_list.append(self.spread.iloc[i-1] - self.spread.iloc[i])
+            elif trade_signal == TradeSignal.CLOSE:
+                profit_list.append(abs(self.spread.iloc[i] - self.spread.iloc[i-1]))
+                LONG, SHORT = False, False
+            elif trade_signal == TradeSignal.STOP_LOSS and (LONG or SHORT):
+                print('Stop loss')
+                profit_list.append(-abs(self.spread.iloc[i] - self.spread.iloc[i-1]))
+                LONG, SHORT = False, False
+            elif trade_signal == TradeSignal.HOLD and not LONG and not SHORT:
+                profit_list.append(0)
+            else:
+                profit_list.append(0)
+        profit_list = np.array(profit_list)
+        ER = np.exp(np.mean(profit_list)*252)-1-0.03
+        print(ER)
+        std = np.std(profit_list)*np.sqrt(252)
+        print((ER)/std)
+        downside_std = np.sqrt(np.mean(np.minimum(profit_list, 0) ** 2))*np.sqrt(252)
+        print(ER/downside_std)
+        cumulative_returns = np.exp(np.cumsum(profit_list))
+        max_drawdown = (cumulative_returns.max() - cumulative_returns.min()) / cumulative_returns.max()
+
+        # 计算 Calmar 比率
+        calmar_ratio = ER / max_drawdown
+        print(calmar_ratio)
+        # profit_list = pd.Series(profit_list, index=self.spread.index)
+        # profit_list.to_csv('profit_list.csv')
         self.profit = profit
