@@ -14,7 +14,7 @@ def get_data_from_csv(file_path: str, symbols: List[str]):
     for symbol in symbols:
         tmp_group = groupby_symbol.get_group(symbol)
         tmp_df = pd.DataFrame([np.array(tmp_group['Trddt']), np.log(np.array(tmp_group['Close']))]).T
-        # tmp_df = pd.DataFrame([np.array(tmp_group['Trddt']), np.array(tmp_group['Close'])]).T
+        # tmp_df = pd.DataFrame([np.array(tmp_group['Trddt']), np.array(tmp_group['Volume'])]).T
         tmp_df.set_index(0, inplace=True)
         tmp_df.index.rename('date', inplace=True)
         tmp_df.columns = [symbol]
