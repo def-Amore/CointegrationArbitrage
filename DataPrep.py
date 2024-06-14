@@ -47,5 +47,5 @@ def get_data(symbols: List[str], ):
     close_result = np.array(close_result)
     close_result = close_result.T
     data = pd.DataFrame(close_result, columns=symbols)
-    data.to_csv('data1.csv')
+    # data.to_csv('data1.csv')
     return data

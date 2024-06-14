@@ -86,23 +86,23 @@ class Strategy:
         profit_list = []
         open = False
         hand = 0
-        for i, trade_signal in zip(range(0, len(self.trade_signals)), self.trade_signals):
-            if trade_signal == TradeSignal.LONG:
-                open_idx = i
-                hand = principle / self.SC2306.iloc[i]
-                open = True
-            if trade_signal == TradeSignal.SHORT:
-                open_idx = i
-                hand = principle / self.SC2303.iloc[i]
-                open = True
-            if trade_signal == TradeSignal.STOP_LOSS and open:
-                profit -= hand*np.abs(self.spread.iloc[open_idx] - self.spread.iloc[i])
-                open = False
-                hand = 0
-            if trade_signal == TradeSignal.CLOSE:
-                profit += hand * np.abs(self.spread.iloc[open_idx] - self.spread.iloc[i])
-                open = False
-                hand = 0
+        # for i, trade_signal in zip(range(0, len(self.trade_signals)), self.trade_signals):
+        #     if trade_signal == TradeSignal.LONG:
+        #         open_idx = i
+        #         hand = principle / self.SC2306.iloc[i]
+        #         open = True
+        #     if trade_signal == TradeSignal.SHORT:
+        #         open_idx = i
+        #         hand = principle / self.SC2303.iloc[i]
+        #         open = True
+        #     if trade_signal == TradeSignal.STOP_LOSS and open:
+        #         profit -= hand*np.abs(self.spread.iloc[open_idx] - self.spread.iloc[i])
+        #         open = False
+        #         hand = 0
+        #     if trade_signal == TradeSignal.CLOSE:
+        #         profit += hand * np.abs(self.spread.iloc[open_idx] - self.spread.iloc[i])
+        #         open = False
+        #         hand = 0
         # get the daily return
         LONG, SHORT = False, False
         for i, trade_signal in zip(range(0, len(self.trade_signals)), self.trade_signals):
@@ -147,4 +147,4 @@ class Strategy:
         print("Calmar Ratio:",calmar_ratio)
         profit_list = pd.Series(profit_list, index=self.spread.index)
         profit_list.to_csv('profit_list_delog.csv')
-        self.profit = profit/self.principle
+        # self.profit = profit/self.principle

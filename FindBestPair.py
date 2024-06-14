@@ -6,7 +6,7 @@ from DataPrep import get_data_from_csv
 
 data = get_data_from_csv('data_INE.csv', ['SC2303',
                                           'SC2306', 'SC2309', 'SC2312', ])
-# data.to_csv('tradingpool23.csv')
+data.to_csv('tradingpool23.csv')
 co_ints_list = []
 for i in range(101, 602, 100):
     # test cointegration for all the periods, find the most cointegrated pair.
