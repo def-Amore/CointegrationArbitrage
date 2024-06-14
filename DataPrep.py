@@ -1,11 +1,7 @@
 from typing import List
 
-from PairArbi import find_cointegration, ArbitragePair
-
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 import urllib.request as urllib2
 import json
 
@@ -18,6 +14,7 @@ def get_data_from_csv(file_path: str, symbols: List[str]):
     for symbol in symbols:
         tmp_group = groupby_symbol.get_group(symbol)
         tmp_df = pd.DataFrame([np.array(tmp_group['Trddt']), np.log(np.array(tmp_group['Close']))]).T
+        # tmp_df = pd.DataFrame([np.array(tmp_group['Trddt']), np.array(tmp_group['Close'])]).T
         tmp_df.set_index(0, inplace=True)
         tmp_df.index.rename('date', inplace=True)
         tmp_df.columns = [symbol]
@@ -27,13 +24,8 @@ def get_data_from_csv(file_path: str, symbols: List[str]):
         merged_data = pd.merge(tmp_df, merged_data, left_index=True, right_index=True, how='inner')
     merged_data.index = pd.to_datetime(merged_data.index, format='%Y/%m/%d')
     merged_data = merged_data.astype(float)
-
+    merged_data.to_csv('log_price.csv')
     return merged_data
-
-
-
-
-# 'SC2403','SC2406','SC2409','SC2412'])
 
 def get_data(symbols: List[str], ):
     url_5m = 'http://stock2.finance.sina.com.cn/futures/api/json.php/IndexService.getInnerFuturesMiniKLine5m?symbol='
